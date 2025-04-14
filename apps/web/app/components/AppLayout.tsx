@@ -6,6 +6,7 @@ import classes from "./AppLayout.module.scss";
 import { getSession } from "~/lib/session.server";
 import { Outlet } from "react-router";
 import { useDarkMode } from "usehooks-ts";
+import { env } from "~/lib/env";
 //TODO: import { AppToaster } from "~/lib/toaster.client";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -47,7 +48,10 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
         <div className={classes.content}>
           <Outlet />
         </div>
-        <Footer commit={import.meta.env.VITE_COMMIT_SHA} />
+        <Footer
+          commit={env.VERCEL_GIT_COMMIT_SHA}
+          ref={env.VERCEL_GIT_COMMIT_REF}
+        />
       </main>
     </div>
   );

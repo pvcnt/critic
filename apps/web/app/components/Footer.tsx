@@ -1,16 +1,17 @@
 import styles from "./Footer.module.scss";
 
-interface FooterProps {
-  commit: string | undefined;
+export interface FooterProps {
+  commit?: string;
+  ref?: string;
 }
 
-export default function Footer({ commit }: FooterProps) {
+export default function Footer({ commit, ref }: FooterProps) {
   return (
     <footer className={styles.footer}>
-      Mergeable @{" "}
+      Critic @{" "}
       {commit ? (
         <a href={`https://github.com/pvcnt/critic/commit/${commit}`}>
-          {commit.substring(0, 7)}
+          {ref ?? commit.substring(0, 7)}
         </a>
       ) : (
         "devel"
