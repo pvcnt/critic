@@ -1,0 +1,1 @@
+sitemap: https://getcritic.dev/sitemap.xml
