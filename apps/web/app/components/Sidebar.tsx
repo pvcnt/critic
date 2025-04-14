@@ -34,8 +34,10 @@ export interface SidebarProps {
 export default function Sidebar({ login, isDark, onDarkChange }: SidebarProps) {
   return (
     <div className={classes.sidebar}>
-      <img src="/logo.svg" height="30" className={classes.logo} />
-      <SidebarLink link="/" title="Inbox" icon="inbox" />
+      <NavLink to="/">
+        <img src="/logo.svg" height="30" className={classes.logo} />
+      </NavLink>
+      <SidebarLink link="/dashboard" title="Inbox" icon="inbox" />
       <SidebarLink link="/settings" title="Settings" icon="cog" />
 
       <div className={classes.bottom}>

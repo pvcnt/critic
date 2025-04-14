@@ -33,7 +33,7 @@ async function getAccessToken(code: string) {
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   if (session.has("userId")) {
-    return redirect("/");
+    return redirect("/dashboard");
   }
 
   const url = new URL(request.url);
@@ -67,7 +67,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     session.set("userId", user.id);
     session.set("login", user.login);
 
-    return redirect("/", {
+    return redirect("/dashboard", {
       headers: {
         "Set-Cookie": await commitSession(session),
       },

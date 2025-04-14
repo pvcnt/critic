@@ -86,7 +86,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
   const prisma = getPrismaClient();
   const user = await prisma.user.findUnique({
-    where: { id: userId},
+    where: { id: userId },
   });
   if (!user) {
     return redirect("/login", {

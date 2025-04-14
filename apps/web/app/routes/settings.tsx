@@ -26,7 +26,7 @@ export async function action({ request }: Route.ActionArgs) {
       "message",
       "Configuration has been reset to factory settings",
     );
-    return redirect("/");
+    return redirect("/dashboard");
   }
 }
 

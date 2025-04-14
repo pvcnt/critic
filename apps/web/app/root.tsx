@@ -6,7 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
-import { Analytics } from '@vercel/analytics/react';
+import { Analytics } from "@vercel/analytics/react";
 import type { Route } from "./+types/root";
 import "normalize.css/normalize.css";
 import "@blueprintjs/core/lib/css/blueprint.css";
