@@ -6,9 +6,10 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "preview": "pnpm run build && vite preview",
-    "typecheck": "react-router typegen && tsc -b",
+    "typecheck": "pnpm run codegen && tsc -b",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
+    "codegen": "pnpm run db:generate && react-router typegen",
     "db:generate": "dotenv -e .env.local -- prisma generate",
     "db:validate": "dotenv -e .env.local -- prisma validate",
     "db:push": "dotenv -e .env.local -- prisma db push --accept-data-loss"
