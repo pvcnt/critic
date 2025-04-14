@@ -7,4 +7,5 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ["virtual:react-router/server-build"],
   },
+  envPrefix: ["VITE_", "VERCEL_"],
 });

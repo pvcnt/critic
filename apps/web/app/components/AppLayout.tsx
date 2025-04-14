@@ -49,8 +49,8 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
           <Outlet />
         </div>
         <Footer
-          commit={env.VITE_VERCEL_GIT_COMMIT_SHA}
-          ref={env.VITE_VERCEL_GIT_COMMIT_REF}
+          commit={env.VERCEL_GIT_COMMIT_SHA}
+          ref={env.VERCEL_GIT_COMMIT_REF}
         />
       </main>
     </div>
