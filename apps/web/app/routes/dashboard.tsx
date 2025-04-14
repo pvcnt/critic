@@ -17,6 +17,7 @@ import {
 } from "~/lib/mutations";
 import { decryptSymmetric } from "~/lib/crypto.server";
 import { env } from "~/lib/env.server";
+import { getSections } from "~/lib/queries.server";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Critic - Dashboard" }];
@@ -79,14 +80,13 @@ export async function action({ request }: Route.ActionArgs) {
 export async function loader({ request }: Route.LoaderArgs) {
   // TODO: cache pulls (too slow).
   const session = await getSession(request.headers.get("Cookie"));
-  if (!session.has("userId")) {
+  const userId = session.get("userId");
+  if (userId === undefined) {
     return redirect("/login");
   }
   const prisma = getPrismaClient();
   const user = await prisma.user.findUnique({
-    where: {
-      id: session.get("userId"),
-    },
+    where: { id: userId},
   });
   if (!user) {
     return redirect("/login", {
@@ -95,14 +95,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       },
     });
   }
-  const sections = await prisma.section.findMany({
-    where: {
-      userId: session.get("userId"),
-    },
-    orderBy: {
-      position: "asc",
-    },
-  });
+  const sections = await getSections(prisma, userId);
   const accessToken = await decryptSymmetric(
     user.accessToken,
     user.iv,
@@ -110,12 +103,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   );
   const github = new HttpGitHubClient({ auth: accessToken });
   const pulls = sections.map((section) => github.searchPulls(section.search));
-  // TODO: updatedAt
-  return { sections, pulls, updatedAt: new Date() };
+  // TODO: refreshedAt
+  return { sections, pulls, refreshedAt: new Date() };
 }
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  const { sections, pulls, updatedAt } = loaderData;
+  const { sections, pulls, refreshedAt } = loaderData;
   const submit = useSubmit();
   const [search, setSearch] = useState("");
 
@@ -154,7 +147,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <Navbar
-        updatedAt={updatedAt}
+        refreshedAt={refreshedAt}
         search={search}
         onSearch={setSearch}
         onCreateSection={handleCreate}

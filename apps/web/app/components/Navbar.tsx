@@ -6,14 +6,14 @@ import SectionDialog, { type SectionData } from "./SectionDialog";
 import SearchBar from "./SearchBar";
 
 export interface NavbarProps {
-  updatedAt: Date;
+  refreshedAt: Date;
   search: string;
   onSearch: (value: string) => void;
   onCreateSection: (value: SectionData) => void;
 }
 
 export default function Navbar({
-  updatedAt,
+  refreshedAt,
   search,
   onSearch,
   onCreateSection,
@@ -29,7 +29,7 @@ export default function Navbar({
           <div className={classes.right}>
             <div className={classes.refreshed}>
               Refreshed{" "}
-              <TimeAgo date={updatedAt} tooltip={false} timeStyle="round" />
+              <TimeAgo date={refreshedAt} tooltip={false} timeStyle="round" />
             </div>
             <Button
               text="New section"
