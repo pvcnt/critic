@@ -1,0 +1,25 @@
+@use "@blueprintjs/core/lib/scss/variables" as bp;
+
+.section {
+    margin-top: 1rem;
+}
+
+.header {
+    display: flex;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: bp.$pt-text-color;
+    cursor: pointer;
+    &:hover {
+        color: bp.$pt-text-color;
+        text-decoration: none;
+    }
+}
+
+.actions {
+    margin-left: auto;
+}

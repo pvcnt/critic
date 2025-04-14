@@ -1,0 +1,65 @@
+@use "@blueprintjs/core/lib/scss/variables" as bp;
+
+.row {
+    td {
+        overflow: hidden;
+        vertical-align: middle !important;
+    }
+    td:nth-child(1) { /* Author */
+        text-align: center;
+        width: 50px;
+        padding: 0.5rem;
+    }
+    td:nth-child(2) { /* Status */
+        text-align: center;
+        width: 25px;
+        padding: 0.5rem;
+    }
+    td:nth-child(3) { /* CI Status */
+        text-align: center;
+        width: 25px;
+        padding: 0.5rem;
+    }
+    td:nth-child(4) { /* Last Action */
+        width: 160px;
+    }
+    td:nth-child(5) { /* Size */
+        text-align: center;
+        width: 50px;
+    }
+}
+
+.title {
+    margin-bottom: 0.25 * bp.$pt-grid-size;
+    span {
+        font-weight: 600;
+    }
+}
+
+.source {
+    font-size: bp.$pt-font-size-small;
+}
+
+.author img {
+    border-radius: 5rem;
+    height: 32px;
+}
+
+.status {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.additions {
+    color: bp.$green4 !important;
+}
+
+.deletions {
+    color: bp.$red4 !important;
+}
+
+.copy {
+    color: bp.$gray1;
+    padding-left: bp.$pt-grid-size;
+    padding-right: bp.$pt-grid-size;
+}

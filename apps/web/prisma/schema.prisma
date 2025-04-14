@@ -1,0 +1,33 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+  // Has to be generated inside node_modules:
+  // https://github.com/prisma/prisma/discussions/21561
+  output          = "../node_modules/@critic/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  externalId  String    @unique
+  login       String
+  name        String?
+  avatarUrl   String?
+  accessToken String
+  iv          String
+  sections    Section[]
+}
+
+model Section {
+  id       Int    @id @default(autoincrement())
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id])
+  position Int
+  label    String
+  search   String
+}
