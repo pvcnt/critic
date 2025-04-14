@@ -3,16 +3,16 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["typecheck", "^build"],
       "env": ["DATABASE_URL", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "CRYPTO_KEY", "COOKIE_SECRET"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".vercel/**", "build/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
     },
-    "check-types": {
-      "dependsOn": ["^check-types"]
+    "typecheck": {
+      "dependsOn": ["^typecheck"]
     },
     "dev": {
       "cache": false,
