@@ -7,8 +7,9 @@ import {
   type User,
   CiState,
   type Review,
-} from "../pull";
+} from "~/lib/pull";
 import { prepareQuery } from "./search";
+import { env } from "~/lib/env.server";
 
 const MAX_PULLS_TO_FETCH = 50;
 
@@ -88,6 +89,10 @@ type GHTeam = {
   name: string;
   combinedSlug: string;
 };
+
+export function getGitHubClient(auth: string): GitHubClient {
+  return new HttpGitHubClient({ auth, baseUrl: env.GITHUB_API_URL });
+}
 
 export class HttpGitHubClient implements GitHubClient {
   private readonly octokit: Octokit;

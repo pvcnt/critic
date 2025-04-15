@@ -2,7 +2,7 @@ import type { Route } from "./+types/login.github";
 import { redirect } from "react-router";
 import { v4 as uuidv4 } from "uuid";
 import { getPrismaClient } from "~/lib/db.server";
-import { HttpGitHubClient } from "~/lib/github/client";
+import { getGitHubClient, HttpGitHubClient } from "~/lib/github/client";
 import { upsertUser } from "~/lib/mutations";
 import { commitSession, getSession } from "~/lib/session.server";
 import { env } from "~/lib/env.server";
@@ -53,7 +53,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       });
     }
 
-    const client = new HttpGitHubClient({ auth: resp.access_token });
+    const client = getGitHubClient(resp.access_token);
     const ghUser = await client.getUser();
 
     const prisma = getPrismaClient();

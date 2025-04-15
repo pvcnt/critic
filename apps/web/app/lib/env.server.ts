@@ -7,6 +7,7 @@ const EnvSchema = z.object({
     .default("development"),
   GITHUB_CLIENT_ID: z.string().nonempty(),
   GITHUB_CLIENT_SECRET: z.string().nonempty(),
+  GITHUB_API_URL: z.string().optional(),
   CRYPTO_KEY: z.string().nonempty(),
   COOKIE_SECRET: z.string().nonempty(),
 });

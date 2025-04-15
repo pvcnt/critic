@@ -6,7 +6,7 @@ import DashboardSection from "~/components/DashboardSection";
 import { redirect } from "react-router";
 import Navbar from "~/components/Navbar";
 import { getPrismaClient, type Section } from "~/lib/db.server";
-import { HttpGitHubClient } from "~/lib/github/client";
+import { getGitHubClient } from "~/lib/github/client";
 import { destroySession, getSession } from "~/lib/session.server";
 import {
   deleteSection,
@@ -101,7 +101,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     user.iv,
     env.CRYPTO_KEY,
   );
-  const github = new HttpGitHubClient({ auth: accessToken });
+  const github = getGitHubClient(accessToken);
   const pulls = sections.map((section) => github.searchPulls(section.search));
   // TODO: refreshedAt
   return { sections, pulls, refreshedAt: new Date() };
