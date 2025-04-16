@@ -31,7 +31,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
-        <Analytics />
+        {import.meta.env.PROD && <Analytics />}
       </body>
     </html>
   );
