@@ -5,29 +5,42 @@ import PullTable from "./PullTable";
 import styles from "./SectionCard.module.scss";
 import { Await } from "react-router";
 
-function matches(pull: Pull, search?: string) {
-  if (!search) {
-    return true;
-  }
-  const normalizedTitle = pull.title.toLowerCase();
-  const normalizedQuery = search.toLowerCase();
-  const tokens = normalizedQuery
-    .split(" ")
-    .map((tok) => tok.trim())
-    .filter((tok) => tok.length > 0);
-  return tokens.every((tok) => normalizedTitle.indexOf(tok) > -1);
-}
-
 export interface SectionCardProps {
   label: string;
-  search?: string;
-  pulls: Promise<Pull[]>;
+  pulls: {
+    sync: Pull[];
+    async?: Promise<Pull[]>;
+  };
   actions?: ReactNode;
+}
+
+function SectionCount({ count }: { count: number }) {
+  if (count === 0) {
+    return;
+  }
+  return (
+    <Tag round minimal>
+      {count}
+    </Tag>
+  );
+}
+
+function SectionContent({
+  pulls,
+  collapsed,
+}: {
+  pulls: Pull[];
+  collapsed: boolean;
+}) {
+  return (
+    <Collapse isOpen={!collapsed}>
+      <PullTable pulls={pulls} />
+    </Collapse>
+  );
 }
 
 export default function SectionCard({
   label,
-  search,
   pulls,
   actions,
 }: SectionCardProps) {
@@ -42,31 +55,40 @@ export default function SectionCard({
         <H5 onClick={(e) => handleClick(e)} className={styles.title}>
           <Icon icon={collapsed ? "chevron-down" : "chevron-up"} color="text" />
           <span>{label}</span>
-          <Suspense>
-            <Await resolve={pulls}>
-              {(resolvedPulls) =>
-                resolvedPulls.length > 0 && (
-                  <Tag round minimal>
-                    {resolvedPulls.length}
-                  </Tag>
-                )
+          {pulls.async ? (
+            <Suspense
+              fallback={
+                <div>
+                  <SectionCount count={pulls.sync.length} />{" "}
+                  <Spinner size={16} />
+                </div>
               }
-            </Await>
-          </Suspense>
+            >
+              <Await resolve={pulls.async}>
+                {(resolvedPulls) => (
+                  <SectionCount count={resolvedPulls.length} />
+                )}
+              </Await>
+            </Suspense>
+          ) : (
+            <SectionCount count={pulls.sync.length} />
+          )}
         </H5>
         <div className={styles.actions}>{actions}</div>
       </div>
-      <Suspense fallback={<Spinner />}>
-        <Await resolve={pulls}>
-          {(resolvedPulls) => (
-            <Collapse isOpen={!collapsed}>
-              <PullTable
-                pulls={resolvedPulls.filter((pull) => matches(pull, search))}
-              />
-            </Collapse>
-          )}
-        </Await>
-      </Suspense>
+      {pulls.async ? (
+        <Suspense
+          fallback={<SectionContent collapsed={collapsed} pulls={pulls.sync} />}
+        >
+          <Await resolve={pulls.async}>
+            {(resolvedPulls) => (
+              <SectionContent collapsed={collapsed} pulls={resolvedPulls} />
+            )}
+          </Await>
+        </Suspense>
+      ) : (
+        <SectionContent collapsed={collapsed} pulls={pulls.sync} />
+      )}
     </Card>
   );
 }

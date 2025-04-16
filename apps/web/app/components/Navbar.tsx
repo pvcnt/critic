@@ -6,7 +6,7 @@ import SectionDialog, { type SectionData } from "./SectionDialog";
 import SearchBar from "./SearchBar";
 
 export interface NavbarProps {
-  refreshedAt: Date;
+  refreshedAt: Date | null;
   search: string;
   onSearch: (value: string) => void;
   onCreateSection: (value: SectionData) => void;
@@ -27,10 +27,12 @@ export default function Navbar({
         </BPNavbar.Group>
         <BPNavbar.Group align={Alignment.END}>
           <div className={classes.right}>
-            <div className={classes.refreshed}>
-              Refreshed{" "}
-              <TimeAgo date={refreshedAt} tooltip={false} timeStyle="round" />
-            </div>
+            {refreshedAt && (
+              <div className={classes.refreshed}>
+                Refreshed{" "}
+                <TimeAgo date={refreshedAt} tooltip={false} timeStyle="round" />
+              </div>
+            )}
             <Button
               text="New section"
               icon="plus"

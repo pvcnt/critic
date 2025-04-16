@@ -1,13 +1,6 @@
 import { Octokit } from "octokit";
 import { throttling } from "@octokit/plugin-throttling";
-import {
-  PullState,
-  type Pull,
-  type Team,
-  type User,
-  CiState,
-  type Review,
-} from "~/lib/pull";
+import { type Pull, type Team, type User, type Review } from "~/lib/pull";
 import { prepareQuery } from "./search";
 import { env } from "~/lib/env.server";
 
@@ -141,8 +134,23 @@ export class HttpGitHubClient implements GitHubClient {
               number
               title
               author {
-                login
-                avatarUrl                  
+                __typename
+                ... on Bot {
+                  id
+                  login
+                  avatarUrl
+                }
+                ... on Mannequin {
+                  id
+                  login
+                  avatarUrl
+                }
+                ... on User {
+                  id
+                  login
+                  name
+                  avatarUrl
+                }
               }
               statusCheckRollup {
                 state
@@ -246,27 +254,27 @@ export class HttpGitHubClient implements GitHubClient {
         number: pull.number,
         title: pull.title,
         state: pull.isDraft
-          ? PullState.Draft
+          ? "draft"
           : pull.merged
-            ? PullState.Merged
+            ? "merged"
             : pull.closed
-              ? PullState.Closed
+              ? "closed"
               : pull.reviewDecision == "APPROVED"
-                ? PullState.Approved
-                : PullState.Pending,
+                ? "approved"
+                : "pending",
         ciState:
           pull.statusCheckRollup?.state == "ERROR"
-            ? CiState.Error
+            ? "error"
             : pull.statusCheckRollup?.state == "FAILURE"
-              ? CiState.Failure
+              ? "failure"
               : pull.statusCheckRollup?.state == "SUCCESS"
-                ? CiState.Success
+                ? "success"
                 : // Do not differentiate between "Pending" and "Expected".
                   pull.statusCheckRollup?.state == "PENDING"
-                  ? CiState.Pending
+                  ? "pending"
                   : pull.statusCheckRollup?.state == "EXPECTED"
-                    ? CiState.Pending
-                    : CiState.None,
+                    ? "pending"
+                    : "none",
         createdAt: new Date(pull.createdAt),
         updatedAt: new Date(pull.updatedAt),
         url: pull.url,

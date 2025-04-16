@@ -5,7 +5,13 @@ import { type SectionData } from "~/components/SectionDialog";
 import DashboardSection from "~/components/DashboardSection";
 import { redirect } from "react-router";
 import Navbar from "~/components/Navbar";
-import { getPrismaClient, type Section } from "~/lib/db.server";
+import {
+  getPrismaClient,
+  getPulls,
+  getUser,
+  savePulls,
+  type Section,
+} from "~/lib/db.server";
 import { getGitHubClient } from "~/lib/github/client";
 import { destroySession, getSession } from "~/lib/session.server";
 import {
@@ -15,9 +21,8 @@ import {
   updateSection,
   createSection,
 } from "~/lib/mutations";
-import { decryptSymmetric } from "~/lib/crypto.server";
-import { env } from "~/lib/env.server";
-import { getSections } from "~/lib/queries.server";
+import { getAccessToken } from "~/lib/crypto.server";
+import type { Pull } from "~/lib/pull";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Critic - Dashboard" }];
@@ -78,16 +83,13 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  // TODO: cache pulls (too slow).
   const session = await getSession(request.headers.get("Cookie"));
   const userId = session.get("userId");
   if (userId === undefined) {
     return redirect("/login");
   }
   const prisma = getPrismaClient();
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
+  const user = await getUser(prisma, userId);
   if (!user) {
     return redirect("/login", {
       headers: {
@@ -95,22 +97,45 @@ export async function loader({ request }: Route.LoaderArgs) {
       },
     });
   }
-  const sections = await getSections(prisma, userId);
-  const accessToken = await decryptSymmetric(
-    user.accessToken,
-    user.iv,
-    env.CRYPTO_KEY,
-  );
-  const github = getGitHubClient(accessToken);
-  const pulls = sections.map((section) => github.searchPulls(section.search));
-  // TODO: refreshedAt
-  return { sections, pulls, refreshedAt: new Date() };
+  const { sections, pulls, refreshedAt } = await getPulls(prisma, userId);
+  // TODO: environment variable to configure default value.
+  // TODO: make this a user-level setting.
+  const refreshInterval = 15 * 60 * 1000; // 15 minutes
+  let async: { pulls: Promise<Pull[]>[]; refreshedAt: Date } | null = null;
+  if (!refreshedAt || Date.now() - refreshedAt.getTime() > refreshInterval) {
+    const accessToken = await getAccessToken(user);
+    const github = getGitHubClient(accessToken);
+    async = {
+      pulls: sections.map((section) => github.searchPulls(section.search)),
+      refreshedAt: new Date(),
+    };
+    async.pulls.forEach((v, idx) => {
+      v.then((pulls) => savePulls(prisma, sections[idx].id, pulls));
+    });
+  }
+  return { sections, pulls, refreshedAt, async };
+}
+
+function matches(pull: Pull, search?: string) {
+  if (!search) {
+    return true;
+  }
+  const normalizedTitle = pull.title.toLowerCase();
+  const normalizedQuery = search.toLowerCase();
+  const tokens = normalizedQuery
+    .split(" ")
+    .map((tok) => tok.trim())
+    .filter((tok) => tok.length > 0);
+  return tokens.every((tok) => normalizedTitle.indexOf(tok) > -1);
 }
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  const { sections, pulls, refreshedAt } = loaderData;
+  const { sections, pulls, refreshedAt, async } = loaderData;
   const submit = useSubmit();
   const [search, setSearch] = useState("");
+
+  const filterPulls = (pulls: Pull[]) =>
+    pulls.filter((pull) => matches(pull, search));
 
   const handleCreate = async (value: SectionData) => {
     await submit(
@@ -157,8 +182,10 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
           <DashboardSection
             key={idx}
             section={section}
-            search={search}
-            pulls={pulls[idx]}
+            pulls={{
+              sync: filterPulls(pulls[idx]),
+              async: async?.pulls[idx].then(filterPulls),
+            }}
             isFirst={idx === 0}
             isLast={idx === sections.length - 1}
             onChange={handleChange}

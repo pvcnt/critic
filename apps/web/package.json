@@ -9,10 +9,10 @@
     "typecheck": "pnpm run codegen && tsc -b",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
-    "codegen": "pnpm run db:generate && react-router typegen",
-    "db:generate": "dotenv -e .env.local -- prisma generate",
-    "db:validate": "dotenv -e .env.local -- prisma validate",
-    "db:push": "dotenv -e .env.local -- prisma db push"
+    "codegen": "pnpm run prisma:generate && react-router typegen",
+    "prisma:generate": "dotenv -e .env.local -- prisma generate",
+    "prisma:validate": "dotenv -e .env.local -- prisma validate",
+    "prisma:push": "dotenv -e .env.local -- prisma db push"
   },
   "dependencies": {
     "@blueprintjs/core": "^5.18.0",

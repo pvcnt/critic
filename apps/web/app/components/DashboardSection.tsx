@@ -7,10 +7,12 @@ import type { Section } from "@critic/prisma";
 
 export interface DashboardSectionProps {
   section: Section;
-  search?: string;
   isFirst: boolean;
   isLast: boolean;
-  pulls: Promise<Pull[]>;
+  pulls: {
+    sync: Pull[];
+    async?: Promise<Pull[]>;
+  };
   onMoveUp: () => void;
   onMoveDown: () => void;
   onChange: (v: Section) => void;
@@ -19,7 +21,6 @@ export interface DashboardSectionProps {
 
 export default function DashboardSection({
   section,
-  search,
   isFirst,
   isLast,
   pulls,
@@ -33,7 +34,6 @@ export default function DashboardSection({
     <>
       <SectionCard
         label={section.label}
-        search={search}
         pulls={pulls}
         actions={
           <>

@@ -7,4 +7,6 @@ const EnvSchema = z.object({
   VERCEL_GIT_COMMIT_REF: z.string().optional(),
 });
 
-export const env = EnvSchema.parse(process.env);
+export const env = EnvSchema.parse(
+  import.meta.env.SSR ? process.env : import.meta.env,
+);

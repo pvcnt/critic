@@ -24,10 +24,23 @@ model User {
 }
 
 model Section {
-  id       Int    @id @default(autoincrement())
+  id       Int        @id @default(autoincrement())
   userId   Int
-  user     User   @relation(fields: [userId], references: [id])
+  user     User       @relation(fields: [userId], references: [id])
   position Int
   label    String
   search   String
+  pulls    PullData[]
+}
+
+model PullData {
+  id          Int       @id @default(autoincrement())
+  externalId  String    @unique
+  repo        String
+  number      Int
+  createdAt   DateTime
+  updatedAt   DateTime
+  refreshedAt DateTime
+  data        Json
+  sections    Section[]
 }
