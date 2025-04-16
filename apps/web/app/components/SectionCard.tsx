@@ -58,8 +58,8 @@ export default function SectionCard({
           {pulls.async ? (
             <Suspense
               fallback={
-                <div>
-                  <SectionCount count={pulls.sync.length} />{" "}
+                <div className={styles.count}>
+                  <SectionCount count={pulls.sync.length} />
                   <Spinner size={16} />
                 </div>
               }
