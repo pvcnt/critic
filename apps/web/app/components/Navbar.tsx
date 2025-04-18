@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Alignment,
   Navbar as BPNavbar,
   Button,
   ControlGroup,
+  useHotkeys,
+  type HotkeyConfig,
 } from "@blueprintjs/core";
 import classes from "./Navbar.module.scss";
 import TimeAgo from "./TimeAgo";
@@ -28,6 +30,19 @@ export default function Navbar({
   onRefresh,
 }: NavbarProps) {
   const [isEditing, setEditing] = useState(false);
+  const hotkeys: HotkeyConfig[] = useMemo(
+    () => [
+      {
+        combo: "r",
+        global: true,
+        label: "Refresh pull requests",
+        preventDefault: true,
+        onKeyDown: onRefresh,
+      },
+    ],
+    [],
+  );
+  useHotkeys(hotkeys);
   return (
     <>
       <BPNavbar className={classes.container}>
