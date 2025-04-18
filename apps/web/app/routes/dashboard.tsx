@@ -5,8 +5,12 @@ import { type SectionData } from "~/components/SectionDialog";
 import DashboardSection from "~/components/DashboardSection";
 import { redirect } from "react-router";
 import Navbar from "~/components/Navbar";
-import { getPrismaClient, type Section } from "~/lib/db.server";
-import { HttpGitHubClient } from "~/lib/github/client";
+import {
+  getPrismaClient,
+  getSections,
+  getUser,
+  type Section,
+} from "~/lib/db.server";
 import { destroySession, getSession } from "~/lib/session.server";
 import {
   deleteSection,
@@ -15,9 +19,8 @@ import {
   updateSection,
   createSection,
 } from "~/lib/mutations";
-import { decryptSymmetric } from "~/lib/crypto.server";
-import { env } from "~/lib/env.server";
-import { getSections } from "~/lib/queries.server";
+import type { Pull } from "~/lib/pull";
+import { useQueries } from "@tanstack/react-query";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Critic - Dashboard" }];
@@ -78,16 +81,13 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  // TODO: cache pulls (too slow).
   const session = await getSession(request.headers.get("Cookie"));
   const userId = session.get("userId");
   if (userId === undefined) {
     return redirect("/login");
   }
   const prisma = getPrismaClient();
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
+  const user = await getUser(prisma, userId);
   if (!user) {
     return redirect("/login", {
       headers: {
@@ -96,21 +96,44 @@ export async function loader({ request }: Route.LoaderArgs) {
     });
   }
   const sections = await getSections(prisma, userId);
-  const accessToken = await decryptSymmetric(
-    user.accessToken,
-    user.iv,
-    env.CRYPTO_KEY,
-  );
-  const github = new HttpGitHubClient({ auth: accessToken });
-  const pulls = sections.map((section) => github.searchPulls(section.search));
-  // TODO: refreshedAt
-  return { sections, pulls, refreshedAt: new Date() };
+  return { sections };
+}
+
+function matches(pull: Pull, search?: string) {
+  if (!search) {
+    return true;
+  }
+  const normalizedTitle = pull.title.toLowerCase();
+  const normalizedQuery = search.toLowerCase();
+  const tokens = normalizedQuery
+    .split(" ")
+    .map((tok) => tok.trim())
+    .filter((tok) => tok.length > 0);
+  return tokens.every((tok) => normalizedTitle.indexOf(tok) > -1);
 }
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  const { sections, pulls, refreshedAt } = loaderData;
+  const { sections } = loaderData;
   const submit = useSubmit();
   const [search, setSearch] = useState("");
+
+  const pulls = useQueries({
+    queries: sections.map((section) => ({
+      queryKey: ["pulls", section.search],
+      queryFn: async () => {
+        const params = new URLSearchParams({ q: section.search });
+        const resp = await fetch(`/api/search?${params.toString()}`);
+        const { pulls } = (await resp.json()) as { pulls: Pull[] };
+        return pulls;
+      },
+      refetchOnWindowFocus: false,
+      refetchInterval: 15 * 60 * 1000,
+      staleTime: 15 * 60 * 1000,
+    })),
+  });
+  const refreshedAt = pulls
+    ? Math.min(...pulls.map((v) => v.dataUpdatedAt))
+    : null;
 
   const handleCreate = async (value: SectionData) => {
     await submit(
@@ -143,6 +166,9 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const handleMoveDown = async (value: Section) => {
     await submit({ action: "down", sectionId: value.id }, { method: "post" });
   };
+  const handleRefresh = async () => {
+    Promise.all(pulls.map((v) => v.refetch())).catch(console.error);
+  };
 
   return (
     <>
@@ -151,23 +177,23 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         search={search}
         onSearch={setSearch}
         onCreateSection={handleCreate}
+        onRefresh={handleRefresh}
+        isFetching={pulls.some((v) => v.isFetching)}
       />
-      {sections.map((section, idx) => {
-        return (
-          <DashboardSection
-            key={idx}
-            section={section}
-            search={search}
-            pulls={pulls[idx]}
-            isFirst={idx === 0}
-            isLast={idx === sections.length - 1}
-            onChange={handleChange}
-            onDelete={() => handleDelete(section)}
-            onMoveUp={() => handleMoveUp(section)}
-            onMoveDown={() => handleMoveDown(section)}
-          />
-        );
-      })}
+      {sections.map((section, idx) => (
+        <DashboardSection
+          key={idx}
+          section={section}
+          pulls={pulls[idx].data?.filter((pull) => matches(pull, search)) ?? []}
+          isLoading={pulls[idx].isLoading}
+          isFirst={idx === 0}
+          isLast={idx === sections.length - 1}
+          onChange={handleChange}
+          onDelete={() => handleDelete(section)}
+          onMoveUp={() => handleMoveUp(section)}
+          onMoveDown={() => handleMoveDown(section)}
+        />
+      ))}
     </>
   );
 }

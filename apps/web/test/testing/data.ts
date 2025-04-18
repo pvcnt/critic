@@ -4,7 +4,7 @@ import {
   type Connection,
   PullState,
   CiState,
-} from "../../app/lib/types";
+} from "../../app/lib/pull";
 
 export function mockPull(props?: Omit<Partial<Pull>, "uid" | "url">): Pull {
   const id = props?.id ?? "PR_1";
@@ -17,8 +17,8 @@ export function mockPull(props?: Omit<Partial<Pull>, "uid" | "url">): Pull {
     title: "Pull request",
     state: PullState.Pending,
     ciState: CiState.None,
-    createdAt: new Date("2024-08-05T15:57:00Z"),
-    updatedAt: new Date("2024-08-05T15:57:00Z"),
+    createdAt: "2024-08-05T15:57:00Z",
+    updatedAt: "2024-08-05T15:57:00Z",
     url: `https://github.com/${repo}/${number}`,
     additions: 0,
     deletions: 0,
