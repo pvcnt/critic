@@ -49,8 +49,6 @@ export default function Navbar({
   );
   useHotkeys(hotkeys);
 
-  const formatInterval = (v: number) => `${v} minute${v > 1 ? "s" : ""}`;
-
   return (
     <>
       <BPNavbar className={classes.container}>
