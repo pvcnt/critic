@@ -116,6 +116,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const { sections } = loaderData;
   const submit = useSubmit();
   const [search, setSearch] = useState("");
+  const [refreshInterval, setRefreshInterval] = useState(15);
 
   const pulls = useQueries({
     queries: sections.map((section) => ({
@@ -129,7 +130,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       refetchOnReconnect: false,
-      refetchInterval: 15 * 60 * 1000,
+      refetchInterval: refreshInterval * 60_000,
       refetchIntervalInBackground: true,
     })),
   });
@@ -176,11 +177,13 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
     <>
       <Navbar
         refreshedAt={refreshedAt}
+        refreshInterval={refreshInterval}
         search={search}
         onSearch={setSearch}
         onCreateSection={handleCreate}
         onRefresh={handleRefresh}
         isFetching={pulls.some((v) => v.isFetching)}
+        onChangeRefreshInterval={setRefreshInterval}
       />
       {sections.map((section, idx) => (
         <DashboardSection
