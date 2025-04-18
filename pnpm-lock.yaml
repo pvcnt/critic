@@ -74,9 +74,9 @@ importers:
       javascript-time-ago:
         specifier: ^2.5.11
         version: 2.5.11
-      normalize.css:
-        specifier: ^8.0.1
-        version: 8.0.1
+      modern-normalize:
+        specifier: ^3.0.1
+        version: 3.0.1
       octokit:
         specifier: ^4.1.2
         version: 4.1.2
@@ -2840,6 +2840,10 @@ packages:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
     engines: {node: '>=10'}
     hasBin: true
+
+  modern-normalize@3.0.1:
+    resolution: {integrity: sha512-VqlMdYi59Uch6fnUPxnpijWUQe+TW6zeWCvyr6Mb7JibheHzSuAAoJi2c71ZwIaWKpECpGpYHoaaBp6rBRr+/g==}
+    engines: {node: '>=6'}
 
   morgan@1.10.0:
     resolution: {integrity: sha512-AbegBVI4sh6El+1gNwvD5YIck7nSA36weD7xvIxG4in80j/UoK8AEGaWnnz8v1GxonMCltmlNs5ZKbGvl9b1XQ==}
@@ -6858,6 +6862,8 @@ snapshots:
   minipass@7.1.2: {}
 
   mkdirp@1.0.4: {}
+
+  modern-normalize@3.0.1: {}
 
   morgan@1.10.0:
     dependencies:

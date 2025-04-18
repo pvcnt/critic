@@ -8,7 +8,7 @@ import {
 } from "react-router";
 import { Analytics } from "@vercel/analytics/react";
 import type { Route } from "./+types/root";
-import "normalize.css/normalize.css";
+import "modern-normalize/modern-normalize.css";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/select/lib/css/blueprint-select.css";
 import "./app.scss";
