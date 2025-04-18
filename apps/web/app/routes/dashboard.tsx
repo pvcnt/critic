@@ -129,7 +129,8 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       refetchOnReconnect: false,
-      refetchInterval: 1 * 60 * 1000,
+      refetchInterval: 15 * 60 * 1000,
+      refetchIntervalInBackground: true,
     })),
   });
   const refreshedAt = pulls
