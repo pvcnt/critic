@@ -51,7 +51,7 @@ export default function App() {
           queries: {
             // With SSR, we usually want to set some default staleTime
             // above 0 to avoid refetching immediately on the client
-            staleTime: 60 * 1000,
+            staleTime: 30 * 1000,
             // With a persist client, gcTime should be set equal or higher
             // than maxAge (which is 24 hours by default).
             gcTime: 24 * 60 * 60 * 1000,
