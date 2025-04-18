@@ -7,10 +7,10 @@ import type { Section } from "@critic/prisma";
 
 export interface DashboardSectionProps {
   section: Section;
-  search?: string;
   isFirst: boolean;
   isLast: boolean;
-  pulls: Promise<Pull[]>;
+  pulls: Pull[];
+  isLoading: boolean;
   onMoveUp: () => void;
   onMoveDown: () => void;
   onChange: (v: Section) => void;
@@ -19,10 +19,10 @@ export interface DashboardSectionProps {
 
 export default function DashboardSection({
   section,
-  search,
   isFirst,
   isLast,
   pulls,
+  isLoading,
   onChange,
   onMoveUp,
   onMoveDown,
@@ -33,7 +33,7 @@ export default function DashboardSection({
     <>
       <SectionCard
         label={section.label}
-        search={search}
+        isLoading={isLoading}
         pulls={pulls}
         actions={
           <>

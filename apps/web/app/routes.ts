@@ -13,5 +13,6 @@ export default [
   ]),
   route("/login", "routes/login.tsx"),
   route("/logout", "routes/logout.tsx"),
-  route("/login/github", "routes/login.github.tsx"),
+  route("/login/github", "routes/login.github.ts"),
+  route("/api/search", "routes/api.search.ts"),
 ] satisfies RouteConfig;

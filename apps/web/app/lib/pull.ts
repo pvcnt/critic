@@ -14,25 +14,9 @@ export type Team = {
   name: string;
 };
 
-export enum PullState {
-  Draft,
-  Pending,
-  Approved,
-  Merged,
-  Closed,
-}
-
-export enum CiState {
-  None,
-  Pending,
-  Error,
-  Failure,
-  Success,
-}
-
 export type Review = {
   author?: User;
-  createdAt: Date;
+  createdAt: string;
   lgtm: boolean;
 };
 
@@ -41,10 +25,10 @@ export type Pull = {
   repo: string;
   number: number;
   title: string;
-  state: PullState;
-  ciState: CiState;
-  createdAt: Date;
-  updatedAt: Date;
+  state: "draft" | "pending" | "approved" | "merged" | "closed";
+  ciState: "none" | "pending" | "error" | "failure" | "success";
+  createdAt: string;
+  updatedAt: string;
   url: string;
   additions: number;
   deletions: number;

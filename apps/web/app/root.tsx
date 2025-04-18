@@ -13,6 +13,11 @@ import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/select/lib/css/blueprint-select.css";
 import "./app.scss";
 import { BlueprintProvider } from "@blueprintjs/core";
+import { QueryClient } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { useState } from "react";
+import { createIDBPersister } from "./lib/query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", type: "image/png", href: "/favicon.png" },
@@ -38,9 +43,32 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  // Ensure that each request has its own cache.
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            // With SSR, we usually want to set some default staleTime
+            // above 0 to avoid refetching immediately on the client
+            staleTime: 60 * 1000,
+            // With a persist client, gcTime should be set equal or higher
+            // than maxAge (which is 24 hours by default).
+            gcTime: 24 * 60 * 60 * 1000,
+          },
+        },
+      }),
+  );
+  const persister = createIDBPersister();
   return (
     <BlueprintProvider>
-      <Outlet />
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{ persister }}
+      >
+        <Outlet />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </PersistQueryClientProvider>
     </BlueprintProvider>
   );
 }

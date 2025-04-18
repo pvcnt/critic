@@ -1,13 +1,6 @@
 import { Octokit } from "octokit";
 import { throttling } from "@octokit/plugin-throttling";
-import {
-  PullState,
-  type Pull,
-  type Team,
-  type User,
-  CiState,
-  type Review,
-} from "../pull";
+import { type Pull, type Team, type User, type Review } from "~/lib/pull";
 import { prepareQuery } from "./search";
 
 const MAX_PULLS_TO_FETCH = 50;
@@ -89,6 +82,10 @@ type GHTeam = {
   combinedSlug: string;
 };
 
+export function getGitHubClient(auth: string): GitHubClient {
+  return new HttpGitHubClient({ auth });
+}
+
 export class HttpGitHubClient implements GitHubClient {
   private readonly octokit: Octokit;
 
@@ -136,8 +133,23 @@ export class HttpGitHubClient implements GitHubClient {
               number
               title
               author {
-                login
-                avatarUrl                  
+                __typename
+                ... on Bot {
+                  id
+                  login
+                  avatarUrl
+                }
+                ... on Mannequin {
+                  id
+                  login
+                  avatarUrl
+                }
+                ... on User {
+                  id
+                  login
+                  name
+                  avatarUrl
+                }
               }
               statusCheckRollup {
                 state
@@ -241,29 +253,29 @@ export class HttpGitHubClient implements GitHubClient {
         number: pull.number,
         title: pull.title,
         state: pull.isDraft
-          ? PullState.Draft
+          ? "draft"
           : pull.merged
-            ? PullState.Merged
+            ? "merged"
             : pull.closed
-              ? PullState.Closed
+              ? "closed"
               : pull.reviewDecision == "APPROVED"
-                ? PullState.Approved
-                : PullState.Pending,
+                ? "approved"
+                : "pending",
         ciState:
           pull.statusCheckRollup?.state == "ERROR"
-            ? CiState.Error
+            ? "error"
             : pull.statusCheckRollup?.state == "FAILURE"
-              ? CiState.Failure
+              ? "failure"
               : pull.statusCheckRollup?.state == "SUCCESS"
-                ? CiState.Success
+                ? "success"
                 : // Do not differentiate between "Pending" and "Expected".
                   pull.statusCheckRollup?.state == "PENDING"
-                  ? CiState.Pending
+                  ? "pending"
                   : pull.statusCheckRollup?.state == "EXPECTED"
-                    ? CiState.Pending
-                    : CiState.None,
-        createdAt: new Date(pull.createdAt),
-        updatedAt: new Date(pull.updatedAt),
+                    ? "pending"
+                    : "none",
+        createdAt: pull.createdAt,
+        updatedAt: pull.updatedAt,
         url: pull.url,
         additions: pull.additions,
         deletions: pull.deletions,
@@ -300,7 +312,7 @@ export class HttpGitHubClient implements GitHubClient {
   private makeReview(review: GHReview): Review {
     return {
       author: review.author !== null ? this.makeUser(review.author) : undefined,
-      createdAt: new Date(review.createdAt),
+      createdAt: review.createdAt,
       lgtm: review.state === "APPROVED",
     };
   }

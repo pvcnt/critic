@@ -1,3 +1,6 @@
+import type { User } from "./db.server";
+import { env } from "./env.server";
+
 export async function encryptSymmetric(plaintext: string, key: string) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const encodedPlaintext = new TextEncoder().encode(plaintext);
@@ -54,6 +57,10 @@ export async function decryptSymmetric(
 
   // decode the text and return it
   return new TextDecoder().decode(cleartext);
+}
+
+export async function getAccessToken(user: User) {
+  return await decryptSymmetric(user.accessToken, user.iv, env.CRYPTO_KEY);
 }
 
 export async function generateKey() {

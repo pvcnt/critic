@@ -1,7 +1,7 @@
 import { Tooltip, Tag, Icon } from "@blueprintjs/core";
 import TimeAgo from "./TimeAgo";
 import IconWithTooltip from "./IconWithTooltip";
-import { CiState, type Pull, PullState, computeSize } from "~/lib/pull";
+import { type Pull, computeSize } from "~/lib/pull";
 import styles from "./PullRow.module.scss";
 import { useState } from "react";
 import CopyToClipboardIcon from "./CopyToClipboardIcon";
@@ -10,8 +10,8 @@ export interface PullRowProps {
   pull: Pull;
 }
 
-const formatDate = (d: Date | string) => {
-  return new Date(d).toLocaleDateString("en", {
+const formatDate = (s: string) => {
+  return new Date(s).toLocaleDateString("en", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -49,34 +49,34 @@ export default function PullRow({ pull }: PullRowProps) {
         </div>
       </td>
       <td>
-        {pull.state == PullState.Draft ? (
+        {pull.state == "draft" ? (
           <IconWithTooltip icon="document" title="Draft" color="#5F6B7C" />
-        ) : pull.state == PullState.Merged ? (
+        ) : pull.state == "merged" ? (
           <IconWithTooltip icon="git-merge" title="Merged" color="#634DBF" />
-        ) : pull.state == PullState.Closed ? (
+        ) : pull.state == "closed" ? (
           <IconWithTooltip icon="cross-circle" title="Closed" color="#AC2F33" />
-        ) : pull.state == PullState.Approved ? (
+        ) : pull.state == "approved" ? (
           <IconWithTooltip icon="git-pull" title="Approved" color="#1C6E42" />
-        ) : pull.state == PullState.Pending ? (
+        ) : pull.state == "pending" ? (
           <IconWithTooltip icon="git-pull" title="Pending" color="#C87619" />
         ) : null}
       </td>
       <td>
-        {pull.ciState == CiState.Error ? (
+        {pull.ciState == "error" ? (
           <IconWithTooltip icon="error" title="Error" color="#AC2F33" />
-        ) : pull.ciState == CiState.Failure ? (
+        ) : pull.ciState == "failure" ? (
           <IconWithTooltip
             icon="cross-circle"
             title="Some checks are failing"
             color="#AC2F33"
           />
-        ) : pull.ciState == CiState.Success ? (
+        ) : pull.ciState == "success" ? (
           <IconWithTooltip
             icon="tick-circle"
             title="All checks passing"
             color="#1C6E42"
           />
-        ) : pull.ciState == CiState.Pending ? (
+        ) : pull.ciState == "pending" ? (
           <IconWithTooltip icon="circle" title="Pending" color="#C87619" />
         ) : (
           <IconWithTooltip icon="remove" title="No status" color="#5F6B7C" />
@@ -84,7 +84,11 @@ export default function PullRow({ pull }: PullRowProps) {
       </td>
       <td>
         <Tooltip content={formatDate(pull.updatedAt)}>
-          <TimeAgo date={pull.updatedAt} tooltip={false} timeStyle="round" />
+          <TimeAgo
+            date={new Date(pull.updatedAt)}
+            tooltip={false}
+            timeStyle="round"
+          />
         </Tooltip>
       </td>
       <td>
