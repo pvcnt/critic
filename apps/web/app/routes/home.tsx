@@ -1,10 +1,17 @@
 import { Button, Navbar } from "@blueprintjs/core";
 import type { Route } from "./+types/home";
 import classes from "./home.module.scss";
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, redirect } from "react-router";
+import { isAuthenticated } from "~/lib/auth.server";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Critic - Pull request inbox" }];
+}
+
+export async function loader({ request }: Route.LoaderArgs) {
+  if (await isAuthenticated(request)) {
+    return redirect("/dashboard");
+  }
 }
 
 export default function Home() {
