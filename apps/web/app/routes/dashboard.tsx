@@ -38,6 +38,10 @@ export async function action({ request }: Route.ActionArgs) {
     const value = formData.get(key);
     return value === null ? null : value.toString();
   };
+  const getInt = (key: string) => {
+    const value = formData.get(key);
+    return value === null ? null : parseInt(value.toString());
+  };
 
   const prisma = getPrismaClient();
   const action = formData.get("action");
@@ -60,20 +64,24 @@ export async function action({ request }: Route.ActionArgs) {
     const sectionId = getString("sectionId");
     const search = getString("search");
     const label = getString("label");
-    if (sectionId !== null && search !== null && label !== null) {
+    const limit = getInt("limit");
+    if (sectionId !== null && search !== null && label !== null && limit !== null) {
       await updateSection(prisma, userId, parseInt(sectionId), {
         search,
         label,
+        limit,
       });
     }
   } else if (action === "create") {
     const search = getString("search");
     const label = getString("label");
     const position = getString("position");
-    if (search !== null && label !== null && position !== null) {
+    const limit = getInt("limit");
+    if (search !== null && label !== null && position !== null && limit !== null) {
       await createSection(prisma, userId, {
         search,
         label,
+        limit,
         position: parseInt(position),
       });
     }
@@ -122,7 +130,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
     queries: sections.map((section) => ({
       queryKey: ["pulls", section.search],
       queryFn: async () => {
-        const params = new URLSearchParams({ q: section.search });
+        const params = new URLSearchParams({ q: section.search, limit: section.limit.toString() });
         const resp = await fetch(`/api/search?${params.toString()}`);
         const { pulls } = (await resp.json()) as { pulls: Pull[] };
         return pulls;
@@ -144,6 +152,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         action: "create",
         label: value.label,
         search: value.search,
+        limit: value.limit,
         position: sections.length,
       },
       { method: "post" },
@@ -156,6 +165,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         sectionId: value.id,
         label: value.label,
         search: value.search,
+        limit: value.limit,
       },
       { method: "post" },
     );

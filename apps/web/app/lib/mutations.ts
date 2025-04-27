@@ -8,16 +8,19 @@ const defaultSections = [
     label: "Incoming reviews",
     search:
       "is:open -author:@me review-requested:@me ; is:open -author:@me involves:@me",
+    limit: 50,
   },
   {
     position: 1,
     label: "Outgoing reviews",
     search: "is:open author:@me draft:false",
+    limit: 50,
   },
   {
     position: 2,
     label: "Draft reviews",
     search: "is:open author:@me draft:true",
+    limit: 50,
   },
 ];
 
@@ -106,7 +109,7 @@ export async function updateSection(
   prisma: PrismaClient,
   userId: number,
   sectionId: number,
-  data: { search: string; label: string },
+  data: { search: string; label: string; limit: number },
 ) {
   await prisma.section.update({
     where: { userId, id: sectionId },
@@ -117,7 +120,7 @@ export async function updateSection(
 export async function createSection(
   prisma: PrismaClient,
   userId: number,
-  data: { search: string; label: string; position: number },
+  data: { search: string; label: string; limit: number;  position: number },
 ) {
   await prisma.section.create({
     data: { userId, ...data },

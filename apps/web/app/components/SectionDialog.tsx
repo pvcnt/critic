@@ -6,6 +6,7 @@ import {
   FormGroup,
   InputGroup,
   Intent,
+  NumericInput,
   TextArea,
 } from "@blueprintjs/core";
 import { useState } from "react";
@@ -14,7 +15,11 @@ import ConfirmDialog from "./ConfirmDialog";
 export interface SectionData {
   search: string;
   label: string;
+  limit: number;
 }
+
+const DEFAULT_LIMIT = 50;
+const MAX_LIMIT = 50;
 
 export interface SectionDialogProps {
   title: string;
@@ -33,17 +38,17 @@ export default function SectionDialog({
   onSubmit,
   onDelete,
 }: SectionDialogProps) {
-  const [label, setLabel] = useState("");
-  const [search, setSearch] = useState("");
+  const [data, setData] = useState<SectionData>({label: "", search: "", limit: DEFAULT_LIMIT});
   const [isDeleting, setDeleting] = useState(false);
 
   const handleOpening = () => {
-    setLabel(section?.label ?? "");
-    setSearch(section?.search ?? "");
+    if (section) {
+      setData(section);
+    }
   };
   const handleSubmit = () => {
     if (isValid()) {
-      onSubmit({ label, search });
+      onSubmit(data);
       onClose();
     }
   };
@@ -51,7 +56,7 @@ export default function SectionDialog({
     onDelete && onDelete();
     onClose();
   };
-  const isValid = () => label.trim().length > 0 && search.trim().length > 0;
+  const isValid = () => data.label.trim().length > 0 && data.search.trim().length > 0;
 
   return (
     <>
@@ -64,8 +69,8 @@ export default function SectionDialog({
         <DialogBody>
           <FormGroup label="Section label" labelInfo="(required)">
             <InputGroup
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
+              value={data.label}
+              onChange={(e) => setData(v => ({ ...v, label: e.target.value }))}
             />
           </FormGroup>
           <FormGroup
@@ -81,9 +86,17 @@ export default function SectionDialog({
             }
           >
             <TextArea
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={data.search}
+              onChange={(e) => setData(v => ({ ...v, search: e.target.value }))}
               fill
+            />
+          </FormGroup>
+          <FormGroup label="Maximum number of pull requests" labelInfo="(required)">
+            <NumericInput
+              value={data.limit}
+              min={1}
+              max={MAX_LIMIT}
+              onValueChange={limit => setData(v => ({ ...v, limit }))}
             />
           </FormGroup>
         </DialogBody>

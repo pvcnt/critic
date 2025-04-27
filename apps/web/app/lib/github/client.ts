@@ -3,13 +3,11 @@ import { throttling } from "@octokit/plugin-throttling";
 import { type Pull, type Team, type User, type Review } from "~/lib/pull";
 import { prepareQuery } from "./search";
 
-const MAX_PULLS_TO_FETCH = 50;
-
 const MyOctokit = Octokit.plugin(throttling);
 
 export interface GitHubClient {
   getUser(): Promise<User>;
-  searchPulls(search: string): Promise<Pull[]>;
+  searchPulls(search: string, limit: number): Promise<Pull[]>;
 }
 
 type GHPull = {
@@ -122,9 +120,9 @@ export class HttpGitHubClient implements GitHubClient {
     };
   }
 
-  async searchPulls(search: string): Promise<Pull[]> {
-    const query = `query dashboard($search: String!) {
-      search(query: $search, type: ISSUE, first: ${MAX_PULLS_TO_FETCH}) {
+  async searchPulls(search: string, limit: number): Promise<Pull[]> {
+    const query = `query dashboard($search: String!, $limit: Int!) {
+      search(query: $search, type: ISSUE, first: $limit) {
         issueCount
         edges {
           node {
@@ -244,6 +242,7 @@ export class HttpGitHubClient implements GitHubClient {
     const q = prepareQuery(search);
     const data = await this.octokit.graphql<Data>(query, {
       search: q.toString(),
+      limit,
     });
     return data.search.edges
       .map((edge) => edge.node)

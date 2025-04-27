@@ -23,6 +23,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (!q) {
     return data({ error: "missing 'q' parameter" }, { status: 400 });
   }
-  const pulls = await github.searchPulls(q);
+  const limit = url.searchParams.get("limit");
+  if (!limit) {
+    return data({ error: "missing 'limit' parameter" }, { status: 400 });
+  }
+  const pulls = await github.searchPulls(q, parseInt(limit));
   return { pulls };
 }
