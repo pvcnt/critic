@@ -1,18 +1,18 @@
 import { type GitHubClient } from "../../app/lib/github/client";
-import { type PullProps, type User } from "../../app/lib/types";
+import { type Pull, type User } from "../../app/lib/pull";
 
 export class FakeGitHubClient implements GitHubClient {
-  private pullsBySearch: Record<string, PullProps[]> = {};
+  private pullsBySearch: Record<string, Pull[]> = {};
 
   getUser(): Promise<User> {
-    return Promise.resolve({ name: "test", avatarUrl: "", bot: false });
+    return Promise.resolve({ id: "u1", login: "test", name: "test", avatarUrl: "", bot: false });
   }
 
-  searchPulls(search: string): Promise<PullProps[]> {
+  searchPulls(search: string, limit: number): Promise<Pull[]> {
     return Promise.resolve(this.pullsBySearch[search] || []);
   }
 
-  setPullsBySearch(search: string, pulls: PullProps[]) {
+  setPullsBySearch(search: string, pulls: Pull[]) {
     this.pullsBySearch[search] = pulls;
   }
 
