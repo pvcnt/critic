@@ -10,6 +10,7 @@ export default [
   layout("components/AppLayout.tsx", [
     route("/dashboard", "routes/dashboard.tsx"),
     route("/settings", "routes/settings.tsx"),
+    route("/pull/:owner/:name/:number", "routes/pull.tsx"),
   ]),
   route("/login", "routes/login.tsx"),
   route("/logout", "routes/logout.tsx"),

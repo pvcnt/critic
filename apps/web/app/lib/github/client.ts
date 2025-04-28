@@ -1,19 +1,23 @@
 import { Octokit } from "octokit";
 import { throttling } from "@octokit/plugin-throttling";
-import { type Pull, type User } from "~/lib/pull";
+import { type Pull, type User, type Team } from "~/lib/pull";
 import { prepareQuery } from "./search";
 
 const MyOctokit = Octokit.plugin(throttling);
 
 export interface GitHubClient {
   getUser(): Promise<User>;
+  getTeams(): Promise<Team[]>;
   searchPulls(search: string, limit: number): Promise<Pull[]>;
+  getPull(repo: string, number: number): Promise<Pull | null>;
+  getDiff(repo: string, number: number): Promise<string | null>;
 }
 
 type GHPull = {
   id: string;
   number: number;
   title: string;
+  body: string;
   repository: {
     nameWithOwner: string;
   };
@@ -37,9 +41,6 @@ type GHPull = {
   latestOpinionatedReviews: {
     totalCount: number;
     nodes: GHReview[];
-  };
-  comments: {
-    totalCount: number;
   };
 };
 
@@ -120,6 +121,17 @@ export class HttpGitHubClient implements GitHubClient {
     };
   }
 
+  async getTeams(): Promise<Team[]> {
+    const resp = await this.octokit.paginate("GET /user/teams", {
+      per_page: 100,
+    });
+    return resp.map((obj) => ({
+      id: obj.node_id,
+      name: obj.name,
+      slug: `${obj.organization.login}/${obj.slug}`,
+    }));
+  }
+
   async searchPulls(search: string, limit: number): Promise<Pull[]> {
     const query = `query dashboard($search: String!, $limit: Int!) {
       search(query: $search, type: ISSUE, first: $limit) {
@@ -130,6 +142,7 @@ export class HttpGitHubClient implements GitHubClient {
               id
               number
               title
+              body
               author {
                 __typename
                 ... on Bot {
@@ -189,40 +202,132 @@ export class HttpGitHubClient implements GitHubClient {
     });
     return data.search.edges
       .map((edge) => edge.node)
-      .map((pull) => ({
-        id: pull.id,
-        repo: pull.repository.nameWithOwner,
-        number: pull.number,
-        title: pull.title,
-        state: pull.isDraft
-          ? "draft"
-          : pull.merged
-            ? "merged"
-            : pull.closed
-              ? "closed"
-              : pull.reviewDecision == "APPROVED"
-                ? "approved"
-                : "pending",
-        ciState:
-          pull.statusCheckRollup?.state == "ERROR"
-            ? "error"
-            : pull.statusCheckRollup?.state == "FAILURE"
-              ? "failure"
-              : pull.statusCheckRollup?.state == "SUCCESS"
-                ? "success"
-                : // Do not differentiate between "Pending" and "Expected".
-                  pull.statusCheckRollup?.state == "PENDING"
+      .map((pull) => this.makePull(pull));
+  }
+
+  async getPull(repo: string, number: number): Promise<Pull | null> {
+    const query = `query pull($owner: String!, $name: String!, $number: Int!) {
+      repository(owner: $owner, name: $name) {
+        pullRequest(number: $number) {
+          id
+          number
+          title
+          body
+          author {
+            __typename
+            ... on Bot {
+              id
+              login
+              avatarUrl
+            }
+            ... on Mannequin {
+              id
+              login
+              avatarUrl
+            }
+            ... on User {
+              id
+              login
+              name
+              avatarUrl
+            }
+          }
+          statusCheckRollup {
+            state
+          }
+          repository {
+            nameWithOwner
+          }
+          createdAt
+          updatedAt
+          state
+          url
+          isDraft
+          closed
+          merged
+          reviewDecision
+          additions
+          deletions
+        }
+      }
+      rateLimit {
+        cost
+      }
+    }`;
+    type Data = {
+      repository: {
+        pullRequest: GHPull | null;
+      };
+      rateLimit: {
+        cost: number;
+      };
+    };
+    const [owner, name] = repo.split("/");
+    const data = await this.octokit.graphql<Data>(query, {
+      owner,
+      name,
+      number,
+    });
+    if (data.repository.pullRequest === null) {
+      return null;
+    }
+    return this.makePull(data.repository.pullRequest);
+  }
+
+  async getDiff(repo: string, number: number): Promise<string | null> {
+    const [owner, name] = repo.split("/");
+    const resp = await this.octokit.rest.pulls.get({
+      owner,
+      repo: name,
+      pull_number: number,
+      mediaType: {
+        format: "diff",
+      },
+    });
+    if (resp.status != 200) {
+      return null;
+    }
+    return resp.data as unknown as string;
+  }
+
+  private makePull(pull: GHPull): Pull {
+    return {
+      id: pull.id,
+      repo: pull.repository.nameWithOwner,
+      number: pull.number,
+      title: pull.title,
+      description: pull.body,
+      state: pull.isDraft
+        ? "draft"
+        : pull.merged
+          ? "merged"
+          : pull.closed
+            ? "closed"
+            : pull.reviewDecision == "APPROVED"
+              ? "approved"
+              : "pending",
+      ciState:
+        pull.statusCheckRollup?.state == "ERROR"
+          ? "error"
+          : pull.statusCheckRollup?.state == "FAILURE"
+            ? "failure"
+            : pull.statusCheckRollup?.state == "SUCCESS"
+              ? "success"
+              : // Do not differentiate between "Pending" and "Expected".
+                pull.statusCheckRollup?.state == "PENDING"
+                ? "pending"
+                : pull.statusCheckRollup?.state == "EXPECTED"
                   ? "pending"
                   : pull.statusCheckRollup?.state == "EXPECTED"
                     ? "pending"
                     : "none",
-        createdAt: pull.createdAt,
-        updatedAt: pull.updatedAt,
-        url: pull.url,
-        additions: pull.additions,
-        deletions: pull.deletions,
-        author: this.makeUser(pull.author),
-      }));
+      createdAt: pull.createdAt,
+      updatedAt: pull.updatedAt,
+      url: pull.url,
+      additions: pull.additions,
+      deletions: pull.deletions,
+      author: this.makeUser(pull.author),
+    };
   }
 
   private makeUser(user: GHUser): User {

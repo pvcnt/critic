@@ -25,6 +25,7 @@ export type Pull = {
   repo: string;
   number: number;
   title: string;
+  description: string;
   state: "draft" | "pending" | "approved" | "merged" | "closed";
   ciState: "none" | "pending" | "error" | "failure" | "success";
   createdAt: string;

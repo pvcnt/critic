@@ -1,0 +1,95 @@
+@use "@blueprintjs/core/lib/scss/variables" as bp;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: bp.$pt-grid-size;
+}
+
+.filename {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: bp.$pt-text-color;
+  cursor: pointer;
+  &:hover {
+    color: bp.$pt-text-color;
+    text-decoration: none;
+  }
+}
+
+.table {
+  border-collapse: collapse;
+  tr.skip td {
+    text-align: center;
+  }
+  // Remove the padding added by the compact Card component.
+  $card-padding: bp.$pt-grid-size * 1.5;
+  margin: $card-padding (-$card-padding) (-$card-padding) (-$card-padding);
+  tr.hunk {
+    td {
+      font-size: 12px;
+      // https://meta.stackexchange.com/questions/364048/we-are-switching-to-system-fonts-on-may-10-2021
+      font-family:
+        ui-monospace, "Cascadia Mono", "Segoe UI Mono", "Liberation Mono",
+        Menlo, Monaco, Consolas, monospace;
+    }
+    td:nth-child(1),
+    td:nth-child(3) {
+      min-width: 40px;
+      width: 1%;
+      vertical-align: top;
+      text-align: center;
+    }
+    td:nth-child(2),
+    td:nth-child(4) {
+      width: 48%;
+      white-space: pre-wrap;
+      word-wrap: anywhere;
+      padding: 0 4px;
+    }
+    &.insert {
+      td:nth-child(1) {
+        background-color: bp.$light-gray3;
+      }
+      td:nth-child(2) {
+        background-color: bp.$light-gray3;
+      }
+      td:nth-child(3) {
+        background-color: bp.$green5;
+      }
+      td:nth-child(4) {
+        background-color: rgba(151, 234, 151, 0.3);
+      }
+    }
+    &.delete {
+      td:nth-child(1) {
+        background-color: bp.$red5;
+      }
+      td:nth-child(2) {
+        background-color: rgba(251, 175, 175, 0.3);
+      }
+      td:nth-child(3) {
+        background-color: bp.$light-gray3;
+      }
+      td:nth-child(4) {
+        background-color: bp.$light-gray3;
+      }
+    }
+    &.replace {
+      td:nth-child(1) {
+        background-color: bp.$red5;
+      }
+      td:nth-child(2) {
+        background-color: rgba(251, 175, 175, 0.3);
+      }
+      td:nth-child(3) {
+        background-color: bp.$green5;
+      }
+      td:nth-child(4) {
+        background-color: rgba(151, 234, 151, 0.3);
+      }
+    }
+  }
+}

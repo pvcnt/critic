@@ -9,6 +9,7 @@ export function mockPull(props?: Omit<Partial<Pull>, "uid" | "url">): Pull {
     repo,
     number,
     title: "Pull request",
+    description: "",
     state: "pending",
     ciState: "none",
     createdAt: "2024-08-05T15:57:00Z",

@@ -1,15 +1,15 @@
 @use "@blueprintjs/core/lib/scss/variables" as bp;
 
 .container {
-    margin-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 
 .right {
-    display: flex;
-    gap: bp.$pt-grid-size;
-    align-items: center;
+  display: flex;
+  gap: bp.$pt-grid-size;
+  align-items: center;
 }
 
 .refreshed {
-    color: bp.$pt-text-color-muted;
+  color: bp.$pt-text-color-muted;
 }
