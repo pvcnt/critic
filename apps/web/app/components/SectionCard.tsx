@@ -3,8 +3,10 @@ import { type ReactNode, useState } from "react";
 import { type Pull } from "~/lib/pull";
 import PullTable from "./PullTable";
 import styles from "./SectionCard.module.scss";
+import { useLocalStorage } from "usehooks-ts";
 
 export interface SectionCardProps {
+  id: number;
   label: string;
   isLoading: boolean;
   pulls: Pull[];
@@ -12,15 +14,20 @@ export interface SectionCardProps {
 }
 
 export default function SectionCard({
+  id,
   label,
   pulls,
   isLoading,
   actions,
 }: SectionCardProps) {
-  const [collapsed, setCollapsed] = useState(false);
+  // Collapsed state is persisted in local storage to survive page reloads.
+  const [collapsed, saveCollapsed] = useLocalStorage(
+    `section:${id}:collapsed`,
+    false,
+  );
   const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    setCollapsed((v) => !v);
+    saveCollapsed((v) => !v);
   };
   return (
     <Card className={styles.section}>
