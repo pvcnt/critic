@@ -5,7 +5,13 @@ export class FakeGitHubClient implements GitHubClient {
   private pullsBySearch: Record<string, Pull[]> = {};
 
   getUser(): Promise<User> {
-    return Promise.resolve({ id: "u1", login: "test", name: "test", avatarUrl: "", bot: false });
+    return Promise.resolve({
+      id: "u1",
+      login: "test",
+      name: "test",
+      avatarUrl: "",
+      bot: false,
+    });
   }
 
   searchPulls(search: string, limit: number): Promise<Pull[]> {

@@ -20,7 +20,11 @@ export function RefreshIntervalInput({
       content={
         <Menu>
           {intervals.map((v, idx) => (
-            <MenuItem key={idx}  text={formatInterval(v)} onClick={() => onChange(v)} />
+            <MenuItem
+              key={idx}
+              text={formatInterval(v)}
+              onClick={() => onChange(v)}
+            />
           ))}
         </Menu>
       }

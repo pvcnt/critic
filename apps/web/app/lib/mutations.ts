@@ -120,7 +120,7 @@ export async function updateSection(
 export async function createSection(
   prisma: PrismaClient,
   userId: number,
-  data: { search: string; label: string; limit: number;  position: number },
+  data: { search: string; label: string; limit: number; position: number },
 ) {
   await prisma.section.create({
     data: { userId, ...data },

@@ -65,7 +65,12 @@ export async function action({ request }: Route.ActionArgs) {
     const search = getString("search");
     const label = getString("label");
     const limit = getInt("limit");
-    if (sectionId !== null && search !== null && label !== null && limit !== null) {
+    if (
+      sectionId !== null &&
+      search !== null &&
+      label !== null &&
+      limit !== null
+    ) {
       await updateSection(prisma, userId, parseInt(sectionId), {
         search,
         label,
@@ -77,7 +82,12 @@ export async function action({ request }: Route.ActionArgs) {
     const label = getString("label");
     const position = getString("position");
     const limit = getInt("limit");
-    if (search !== null && label !== null && position !== null && limit !== null) {
+    if (
+      search !== null &&
+      label !== null &&
+      position !== null &&
+      limit !== null
+    ) {
       await createSection(prisma, userId, {
         search,
         label,
@@ -130,7 +140,10 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
     queries: sections.map((section) => ({
       queryKey: ["pulls", section.search],
       queryFn: async () => {
-        const params = new URLSearchParams({ q: section.search, limit: section.limit.toString() });
+        const params = new URLSearchParams({
+          q: section.search,
+          limit: section.limit.toString(),
+        });
         const resp = await fetch(`/api/search?${params.toString()}`);
         const { pulls } = (await resp.json()) as { pulls: Pull[] };
         return pulls;

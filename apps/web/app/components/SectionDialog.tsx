@@ -38,7 +38,11 @@ export default function SectionDialog({
   onSubmit,
   onDelete,
 }: SectionDialogProps) {
-  const [data, setData] = useState<SectionData>({label: "", search: "", limit: DEFAULT_LIMIT});
+  const [data, setData] = useState<SectionData>({
+    label: "",
+    search: "",
+    limit: DEFAULT_LIMIT,
+  });
   const [isDeleting, setDeleting] = useState(false);
 
   const handleOpening = () => {
@@ -56,7 +60,8 @@ export default function SectionDialog({
     onDelete && onDelete();
     onClose();
   };
-  const isValid = () => data.label.trim().length > 0 && data.search.trim().length > 0;
+  const isValid = () =>
+    data.label.trim().length > 0 && data.search.trim().length > 0;
 
   return (
     <>
@@ -70,7 +75,9 @@ export default function SectionDialog({
           <FormGroup label="Section label" labelInfo="(required)">
             <InputGroup
               value={data.label}
-              onChange={(e) => setData(v => ({ ...v, label: e.target.value }))}
+              onChange={(e) =>
+                setData((v) => ({ ...v, label: e.target.value }))
+              }
             />
           </FormGroup>
           <FormGroup
@@ -87,16 +94,21 @@ export default function SectionDialog({
           >
             <TextArea
               value={data.search}
-              onChange={(e) => setData(v => ({ ...v, search: e.target.value }))}
+              onChange={(e) =>
+                setData((v) => ({ ...v, search: e.target.value }))
+              }
               fill
             />
           </FormGroup>
-          <FormGroup label="Maximum number of pull requests" labelInfo="(required)">
+          <FormGroup
+            label="Maximum number of pull requests"
+            labelInfo="(required)"
+          >
             <NumericInput
               value={data.limit}
               min={1}
               max={MAX_LIMIT}
-              onValueChange={limit => setData(v => ({ ...v, limit }))}
+              onValueChange={(limit) => setData((v) => ({ ...v, limit }))}
             />
           </FormGroup>
         </DialogBody>
