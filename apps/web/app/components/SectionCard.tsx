@@ -24,6 +24,8 @@ export default function SectionCard({
   const [collapsed, saveCollapsed] = useLocalStorage(
     `section:${id}:collapsed`,
     false,
+    // Avoids "Prop `className` did not match" when a section is collapsed by default.
+    { initializeWithValue: false },
   );
   const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
