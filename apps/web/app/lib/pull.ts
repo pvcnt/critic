@@ -33,9 +33,6 @@ export type Pull = {
   additions: number;
   deletions: number;
   author: User;
-  requestedReviewers: User[];
-  requestedTeams: Team[];
-  reviews: Review[];
 };
 
 // Defaults come from Prow:

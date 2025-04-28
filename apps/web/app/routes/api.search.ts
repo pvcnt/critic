@@ -4,6 +4,7 @@ import { getAccessToken } from "~/lib/crypto.server";
 import { data } from "react-router";
 import { getPrismaClient, getUser } from "~/lib/db.server";
 import { getSession } from "~/lib/session.server";
+import { env } from "~/lib/env.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -16,7 +17,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (!user) {
     return data({ error: "unauthenticated" }, { status: 401 });
   }
-  const accessToken = await getAccessToken(user);
+  const accessToken = await getAccessToken(user, env.CRYPTO_KEY);
   const github = getGitHubClient(accessToken);
   const url = new URL(request.url);
   const q = url.searchParams.get("q");

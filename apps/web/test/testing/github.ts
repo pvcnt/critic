@@ -15,7 +15,7 @@ export class FakeGitHubClient implements GitHubClient {
   }
 
   searchPulls(search: string, limit: number): Promise<Pull[]> {
-    return Promise.resolve(this.pullsBySearch[search] || []);
+    return Promise.resolve((this.pullsBySearch[search] || []).slice(0, limit));
   }
 
   setPullsBySearch(search: string, pulls: Pull[]) {

@@ -1,6 +1,6 @@
 import { Octokit } from "octokit";
 import { throttling } from "@octokit/plugin-throttling";
-import { type Pull, type Team, type User, type Review } from "~/lib/pull";
+import { type Pull, type User } from "~/lib/pull";
 import { prepareQuery } from "./search";
 
 const MyOctokit = Octokit.plugin(throttling);
@@ -152,62 +152,6 @@ export class HttpGitHubClient implements GitHubClient {
               statusCheckRollup {
                 state
               }
-              reviewRequests(first: 100) {
-                nodes {
-                  requestedReviewer {
-                    __typename
-                    ... on Bot {
-                      id
-                      login
-                      avatarUrl
-                    }
-                    ... on Mannequin {
-                      id
-                      login
-                      avatarUrl
-                    }
-                    ... on User {
-                      id
-                      login
-                      name
-                      avatarUrl
-                    }
-                    ... on Team {
-                      id
-                      name
-                      combinedSlug
-                    }
-                  }
-                }
-              }
-              latestOpinionatedReviews(first: 100, writersOnly: true) {
-                nodes {
-                  author {
-                    __typename
-                    ... on Bot {
-                      id
-                      login
-                      avatarUrl
-                    }
-                    ... on Mannequin {
-                      id
-                      login
-                      avatarUrl
-                    }
-                    ... on User {
-                      id
-                      login
-                      name
-                      avatarUrl
-                    }
-                  }
-                  state
-                  createdAt
-                }
-              }
-              comments {
-                totalCount
-              }
               repository {
                 nameWithOwner
               }
@@ -221,7 +165,6 @@ export class HttpGitHubClient implements GitHubClient {
               reviewDecision
               additions
               deletions
-              totalCommentsCount
             }
           }
         }
@@ -278,19 +221,7 @@ export class HttpGitHubClient implements GitHubClient {
         url: pull.url,
         additions: pull.additions,
         deletions: pull.deletions,
-        comments: pull.comments.totalCount,
         author: this.makeUser(pull.author),
-        requestedReviewers: pull.reviewRequests.nodes
-          .map((n) => n.requestedReviewer)
-          .filter((r) => r.__typename != "Team")
-          .map((r) => this.makeUser(r as GHUser)),
-        requestedTeams: pull.reviewRequests.nodes
-          .map((n) => n.requestedReviewer)
-          .filter((r) => r.__typename == "Team")
-          .map((r) => this.makeTeam(r as GHTeam)),
-        reviews: pull.latestOpinionatedReviews.nodes.map((n) =>
-          this.makeReview(n),
-        ),
       }));
   }
 
@@ -301,18 +232,6 @@ export class HttpGitHubClient implements GitHubClient {
       name: user.name ?? null,
       avatarUrl: user.avatarUrl ?? null,
       bot: user.__typename === "Bot",
-    };
-  }
-
-  private makeTeam(team: GHTeam): Team {
-    return { id: team.id, slug: team.combinedSlug, name: team.name };
-  }
-
-  private makeReview(review: GHReview): Review {
-    return {
-      author: review.author !== null ? this.makeUser(review.author) : undefined,
-      createdAt: review.createdAt,
-      lgtm: review.state === "APPROVED",
     };
   }
 }
