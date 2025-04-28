@@ -10,7 +10,7 @@ import {
   TextArea,
 } from "@blueprintjs/core";
 import { useState } from "react";
-import ConfirmDialog from "./ConfirmDialog";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 export interface SectionData {
   search: string;

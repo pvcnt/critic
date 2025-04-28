@@ -1,7 +1,7 @@
 import type { Route } from "./+types/settings";
 import { Button, Card, H3 } from "@blueprintjs/core";
 import { useState } from "react";
-import ConfirmDialog from "~/components/ConfirmDialog";
+import { ConfirmDialog } from "~/components/ConfirmDialog";
 import classes from "./settings.module.scss";
 import { redirect, useFetcher } from "react-router";
 import { resetSections } from "~/lib/mutations";

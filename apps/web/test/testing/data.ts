@@ -1,5 +1,4 @@
 import { type Pull } from "../../app/lib/pull";
-import { type Section } from "../../app/lib/db.server";
 
 export function mockPull(props?: Omit<Partial<Pull>, "uid" | "url">): Pull {
   const id = props?.id ?? "PR_1";
@@ -24,18 +23,6 @@ export function mockPull(props?: Omit<Partial<Pull>, "uid" | "url">): Pull {
       avatarUrl: "",
       bot: false,
     },
-    ...props,
-  };
-}
-
-export function mockSection(props?: Partial<Section>): Section {
-  return {
-    id: 1,
-    userId: 1,
-    label: "Section",
-    search: "author:@me",
-    position: 0,
-    limit: 50,
     ...props,
   };
 }

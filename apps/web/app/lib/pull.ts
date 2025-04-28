@@ -35,7 +35,7 @@ export type Pull = {
   author: User;
 };
 
-// Defaults come from Prow:
+// Thresholds come from Prow:
 // https://github.com/kubernetes/test-infra/blob/master/prow/plugins/size/size.go
 const thresholds = [10, 30, 100, 500, 1000];
 const labels = ["XS", "S", "M", "L", "XL", "XXL"];

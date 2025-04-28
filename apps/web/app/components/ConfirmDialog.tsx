@@ -14,7 +14,7 @@ export interface ConfirmDialogProps {
   children?: ReactNode;
 }
 
-export default function ConfirmDialog({
+export function ConfirmDialog({
   isOpen,
   onClose,
   onSubmit,
