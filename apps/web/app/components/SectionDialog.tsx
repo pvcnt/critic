@@ -30,6 +30,12 @@ export interface SectionDialogProps {
   onDelete?: () => void;
 }
 
+const emptySection: SectionData = {
+  label: "",
+  search: "",
+  limit: DEFAULT_LIMIT,
+};
+
 export default function SectionDialog({
   title,
   section,
@@ -38,16 +44,14 @@ export default function SectionDialog({
   onSubmit,
   onDelete,
 }: SectionDialogProps) {
-  const [data, setData] = useState<SectionData>({
-    label: "",
-    search: "",
-    limit: DEFAULT_LIMIT,
-  });
+  const [data, setData] = useState<SectionData>(emptySection);
   const [isDeleting, setDeleting] = useState(false);
 
   const handleOpening = () => {
     if (section) {
       setData(section);
+    } else {
+      setData(emptySection);
     }
   };
   const handleSubmit = () => {
