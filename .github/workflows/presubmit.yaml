@@ -1,0 +1,21 @@
+name: Pre-Submit
+on:
+  pull_request: ~
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.5.0
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+      - name: Install dependencies
+        run: pnpm install
+      - name: Run tests
+        run: pnpm typecheck && pnpm test
+        env:
+          POLLY_MODE: offline
