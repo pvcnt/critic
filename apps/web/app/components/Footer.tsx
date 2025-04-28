@@ -1,21 +1,10 @@
 import styles from "./Footer.module.scss";
 
-export interface FooterProps {
-  commit?: string;
-  ref?: string;
-}
-
-export default function Footer({ commit, ref }: FooterProps) {
+export default function Footer() {
   return (
     <footer className={styles.footer}>
-      Critic @{" "}
-      {commit ? (
-        <a href={`https://github.com/pvcnt/critic/commit/${commit}`}>
-          {ref ?? commit.substring(0, 7)}
-        </a>
-      ) : (
-        "devel"
-      )}
+      Critic is an <a href="https://github.com/pvcnt/critic">open source</a>{" "}
+      software.
     </footer>
   );
 }
