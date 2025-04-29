@@ -34,32 +34,6 @@ type GHPull = {
   statusCheckRollup: {
     state: "EXPECTED" | "ERROR" | "FAILURE" | "PENDING" | "SUCCESS";
   } | null;
-  reviewRequests: {
-    totalCount: number;
-    nodes: GHReviewRequest[];
-  };
-  latestOpinionatedReviews: {
-    totalCount: number;
-    nodes: GHReview[];
-  };
-};
-
-type GHReviewRequest = {
-  requestedReviewer:
-    | ({ __typename: "Bot" | "Mannequin" | "User" } & GHUser)
-    | ({ __typename: "Team" } & GHTeam);
-};
-
-type GHReview = {
-  id: string;
-  author: GHUser | null;
-  state:
-    | "PENDING"
-    | "COMMENTED"
-    | "APPROVED"
-    | "CHANGES_REQUESTED"
-    | "DISMISSED";
-  createdAt: string;
 };
 
 type GHUser = {
@@ -73,12 +47,6 @@ type GHUser = {
   login: string;
   name?: string;
   avatarUrl?: string;
-};
-
-type GHTeam = {
-  id: string;
-  name: string;
-  combinedSlug: string;
 };
 
 export function getGitHubClient(auth: string): GitHubClient {
